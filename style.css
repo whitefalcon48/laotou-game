@@ -22,6 +22,7 @@ body {
     var(--page);
   color: var(--paper);
   font-family: "Microsoft YaHei", "SimHei", "Noto Sans SC", Arial, sans-serif;
+  overscroll-behavior: none;
 }
 
 .game-shell {
@@ -82,6 +83,7 @@ canvas {
   box-shadow: 0 14px 0 #0c0d10;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  touch-action: none;
 }
 
 .controls {
@@ -91,13 +93,96 @@ canvas {
   font-size: 0.95rem;
 }
 
+.touch-controls {
+  display: none;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  touch-action: none;
+}
+
+.touch-dpad {
+  width: 156px;
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  grid-template-rows: repeat(2, 48px);
+  gap: 6px;
+}
+
+.touch-dpad button,
+.touch-actions button {
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 10px;
+  border-width: 3px;
+  border-radius: 4px;
+  box-shadow: 0 4px 0 #7f3e17;
+  touch-action: none;
+}
+
+.touch-dpad button[data-key="arrowup"] {
+  grid-column: 2;
+}
+
+.touch-dpad button[data-key="arrowleft"] {
+  grid-column: 1;
+}
+
+.touch-dpad button[data-key="arrowdown"] {
+  grid-column: 2;
+}
+
+.touch-dpad button[data-key="arrowright"] {
+  grid-column: 3;
+}
+
+.touch-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.touch-actions button {
+  min-width: 112px;
+}
+
 @media (max-width: 560px) {
   .topbar {
     align-items: stretch;
     flex-direction: column;
   }
 
-  button {
+  .topbar button {
     width: 100%;
+  }
+
+  .controls {
+    font-size: 0.82rem;
+  }
+
+  .touch-controls {
+    display: flex;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .touch-controls {
+    display: flex;
+  }
+}
+
+@media (max-width: 420px) {
+  .touch-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .touch-dpad {
+    margin: 0 auto;
+  }
+
+  .touch-actions {
+    grid-template-columns: 1fr 1fr;
   }
 }

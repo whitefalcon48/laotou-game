@@ -16,6 +16,19 @@
     <canvas id="gameCanvas" width="480" height="270" aria-label="抓捕王二勇 游戏画面"></canvas>
 
     <p class="controls">↑ ↓ ← → / W A S D：移动　Space：投茶叶蛋　P / Esc：暂停</p>
+
+    <nav class="touch-controls" aria-label="触控操作">
+      <div class="touch-dpad">
+        <button type="button" data-key="arrowup" aria-label="向上">↑</button>
+        <button type="button" data-key="arrowleft" aria-label="向左">←</button>
+        <button type="button" data-key="arrowdown" aria-label="向下">↓</button>
+        <button type="button" data-key="arrowright" aria-label="向右">→</button>
+      </div>
+      <div class="touch-actions">
+        <button type="button" data-action="throw">投茶叶蛋</button>
+        <button type="button" data-action="pause">暂停</button>
+      </div>
+    </nav>
   </main>
 
   <script src="game.js"></script>

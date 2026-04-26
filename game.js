@@ -28,7 +28,10 @@ const settings = {
   maxEggs: 15,
   eggReloadSeconds: 2.2,
   shotCooldownSeconds: 0.36,
-  enemyBombSeconds: 4.0,
+  enemyBombStartCaptures: 5,
+  enemyBombSeconds: 3.8,
+  enemyBombGlobalSeconds: 1.8,
+  maxEnemyBombs: 2,
   bossAttackSeconds: 1.25,
   playerX: 62,
   minX: 18,
@@ -45,6 +48,7 @@ const game = {
   captures: 0,
   eggReloadTimer: 0,
   shotCooldown: 0,
+  enemyBombCooldown: 0,
   enemyTimer: 0,
   messageTimer: 0,
   lastTime: 0,
@@ -74,6 +78,7 @@ function resetGame() {
   game.captures = 0;
   game.eggReloadTimer = 0;
   game.shotCooldown = 0;
+  game.enemyBombCooldown = 0;
   game.enemyTimer = 0.4;
   game.messageTimer = 0;
   game.paused = false;
@@ -214,7 +219,7 @@ function spawnEnemy() {
     h: 48,
     vx: -42 - Math.random() * 22,
     step: Math.random() * 10,
-    attackTimer: 1.6 + Math.random() * settings.enemyBombSeconds
+    attackTimer: 2.4 + Math.random() * settings.enemyBombSeconds
   });
 }
 
@@ -280,6 +285,7 @@ function updatePlaying(delta) {
   game.scroll += delta * 36;
   game.player.hurtTimer = Math.max(0, game.player.hurtTimer - delta);
   game.shotCooldown = Math.max(0, game.shotCooldown - delta);
+  game.enemyBombCooldown = Math.max(0, game.enemyBombCooldown - delta);
 
   if (keys.has("arrowup") || keys.has("w")) {
     game.player.y -= game.player.speed * delta;
@@ -347,9 +353,18 @@ function updatePlaying(delta) {
     enemy.x += enemy.vx * delta;
     enemy.step += delta * 8;
     enemy.attackTimer -= delta;
-    if (enemy.attackTimer <= 0 && enemy.x > game.player.x + 80 && enemy.x < WIDTH - 44) {
+    const canEnemyAttack =
+      game.captures >= settings.enemyBombStartCaptures &&
+      game.enemyBombCooldown <= 0 &&
+      game.enemyBombs.length < settings.maxEnemyBombs &&
+      enemy.attackTimer <= 0 &&
+      enemy.x > game.player.x + 100 &&
+      enemy.x < WIDTH - 60;
+
+    if (canEnemyAttack) {
       spawnEnemyBomb(enemy);
-      enemy.attackTimer = settings.enemyBombSeconds + Math.random() * 1.4;
+      game.enemyBombCooldown = settings.enemyBombGlobalSeconds;
+      enemy.attackTimer = settings.enemyBombSeconds + Math.random() * 2.0;
     }
   }
 
@@ -797,6 +812,42 @@ window.addEventListener("keyup", (event) => {
 });
 
 startButton.addEventListener("click", startOrRestart);
+
+document.querySelectorAll("[data-key]").forEach((button) => {
+  const key = button.dataset.key;
+
+  button.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    keys.add(key);
+  });
+
+  button.addEventListener("pointerup", (event) => {
+    event.preventDefault();
+    keys.delete(key);
+  });
+
+  button.addEventListener("pointercancel", () => {
+    keys.delete(key);
+  });
+
+  button.addEventListener("lostpointercapture", () => {
+    keys.delete(key);
+  });
+});
+
+document.querySelectorAll("[data-action]").forEach((button) => {
+  button.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+
+    if (button.dataset.action === "throw") {
+      throwEgg();
+    }
+    if (button.dataset.action === "pause") {
+      togglePause();
+    }
+  });
+});
 
 game.lastTime = performance.now();
 requestAnimationFrame(loop);
